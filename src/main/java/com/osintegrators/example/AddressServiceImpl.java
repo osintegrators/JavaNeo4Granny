@@ -13,6 +13,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.Transaction;
@@ -35,7 +36,7 @@ public class AddressServiceImpl implements AddressService {
         FRIEND
     }
 	
-	public void createAddress(Address address) {
+	public Address createAddress(Address address) {
 		
 		/* this is because the one we receive doesn't include a uuid */
 		Address newAddr = new Address();
@@ -74,7 +75,10 @@ public class AddressServiceImpl implements AddressService {
 		finally
 		{
 			tx.finish();
-		}		
+		}
+		
+		
+		return newAddr;
 	}
 
 	public List<Address> getAllAddresses() {
@@ -100,6 +104,7 @@ public class AddressServiceImpl implements AddressService {
 		ReadableIndex<Node> autoNodeIndex = graphDb.index().getNodeAutoIndexer().getAutoIndex();		
 		Node addressNode = autoNodeIndex.get("uuid", address.getUuid()).getSingle();
 		
+		
 		if( addressNode == null )
 		{
 			System.err.println( "could not look up address to delete it!");
@@ -109,6 +114,15 @@ public class AddressServiceImpl implements AddressService {
 		Transaction tx = graphDb.beginTx();
 		try
 		{
+			Iterable<Relationship> relationships = addressNode.getRelationships();		
+			if( relationships != null )
+			{
+				for( Relationship r : relationships )
+				{
+					r.delete();
+				}
+			}
+			
 			addressNode.delete();
 			tx.success();
 		}
@@ -174,7 +188,7 @@ public class AddressServiceImpl implements AddressService {
 
 	public Address addFriendshipAssociation(String personUuid, String newFriendUuid) {
 
-		System.out.println("addFriendAssociation");
+		System.out.println("addFriendAssociation: " + personUuid + " / " + newFriendUuid );
 
 		ReadableIndex<Node> autoNodeIndex = graphDb.index().getNodeAutoIndexer().getAutoIndex();		
 		Node personNode = autoNodeIndex.get("uuid", personUuid).getSingle();

@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface AddressService {
 
-	void createAddress(Address add);
+	Address createAddress(Address add);
 
 	void deleteAddress(Address add);
 
