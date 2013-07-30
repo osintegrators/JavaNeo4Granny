@@ -1,4 +1,4 @@
-GrannyAndFriendsJPA
+JavaNeo4Granny
 ================
 
 Granny's Addressbook + Friends with Java + Spring MVC + Neo4J
